@@ -83,7 +83,7 @@ export async function GET(request) {
     // 최신순 정렬
     messages.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    return Response.json(messages.slice(0, 30)); // 최근 30개만 반환
+    return Response.json(messages); // 최근 30개만 반환
   } catch (error) {
     console.error("Daum Mail Error:", error);
     return Response.json({ error: error.message }, { status: 500 });

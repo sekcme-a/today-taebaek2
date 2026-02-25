@@ -20,7 +20,7 @@ export const saveArticle = async (data) => {
       data.images?.map(async (img) => {
         const { url } = await uploadFile(img.file, "images", articleId);
         return url;
-      })
+      }),
     );
 
     const { error: articleErr } = await supabase
@@ -41,7 +41,7 @@ export const saveArticle = async (data) => {
     const { error: catError } = await supabase
       .from("article_categories")
       .insert([
-        { article_id: articleId, category_slug: "general" },
+        // { article_id: articleId, category_slug: "general" },
         { article_id: articleId, category_slug: data.slug },
       ]);
 

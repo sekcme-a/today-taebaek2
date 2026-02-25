@@ -31,7 +31,7 @@ export default async function RootLayout({ children }) {
         />
         <link
           rel="shortcut icon"
-          href="https://www.western-news.co.kr/favicon.ico"
+          href="https://www.xn--2n1b19ndwjhoj6sb.com/favicon.ico"
         ></link>
       </head>
       <body

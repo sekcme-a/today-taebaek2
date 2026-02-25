@@ -193,7 +193,7 @@ export default function SideNavbar({ categoriess, onClick }) {
             </div>
 
             <h2 className="text-2xl font-extrabold text-gray-800 border-b pb-4 mb-6">
-              서부뉴스
+              투데이태백
             </h2>
 
             <nav className="overflow-y-auto max-h-[calc(100vh-150px)]">
@@ -228,7 +228,7 @@ export default function SideNavbar({ categoriess, onClick }) {
             </nav>
 
             {/* <div className=" bottom-0 left-0 right-0 p-6 border-t text-sm text-gray-400">
-              <p>서부뉴스</p>
+              <p>투데이태백</p>
             </div> */}
           </div>
         </>

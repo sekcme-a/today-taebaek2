@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/utils/supabase/server";
 export async function GET() {
   const supabase = await createServerSupabaseClient();
 
-  const baseUrl = "https://western-news.co.kr";
+  const baseUrl = "https://xn--2n1b19ndwjhoj6sb.com";
   const today = "2025-10-16T00:00:00Z";
 
   // 로그인은 SEO에서 의미 없으므로 생략 또는 priority 0.1

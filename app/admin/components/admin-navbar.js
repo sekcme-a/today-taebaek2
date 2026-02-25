@@ -28,8 +28,13 @@ export const MENU = [
     link: "/categories",
   },
   {
-    text: "오늘의 루틴",
-    link: "/routine",
+    text: "오늘의 루틴2",
+    link: "/routine2",
+    role: "super_admin",
+  },
+  {
+    text: "이메일 보도자료",
+    link: "/email",
     role: "super_admin",
   },
   {

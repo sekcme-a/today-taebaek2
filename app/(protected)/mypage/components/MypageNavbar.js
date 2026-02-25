@@ -12,12 +12,12 @@ export default function MyPageNavbar({ selectedMenu }) {
       <div className="flex items-center">
         <Link
           href="/"
-          title="서부뉴스 홈으로 이동"
+          title="투데이태백 홈으로 이동"
           className="relative w-[100px] h-[33px] md:w-[150px] md:h-[50px] block"
         >
           <Image
             src="/images/logo_white.png"
-            alt="서부뉴스"
+            alt="투데이태백"
             fill
             style={{ objectFit: "contain" }}
             priority

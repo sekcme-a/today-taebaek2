@@ -12,7 +12,7 @@ export default async function Headline() {
     //    PostgREST/Supabase는 Foreign Key 관계를 기반으로 이 조인을 수행합니다.
     .select("articles(title, thumbnail_image, id, images_bodo)")
     // 2. category_slug가 'general'인 항목을 필터링합니다.
-    .eq("category_slug", "general")
+    .eq("category_slug", "politics")
     // 3. is_main이 true인 항목을 필터링합니다.
     .eq("is_main", true);
 

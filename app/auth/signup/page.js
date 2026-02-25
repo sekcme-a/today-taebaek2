@@ -65,7 +65,7 @@ const SignUpPage = () => {
     // 2. 비밀번호 유효성 검사 (6자리 이상, 숫자, 기호 포함)
     if (!validatePassword(password)) {
       setMessage(
-        "오류: 비밀번호는 6자리 이상, 숫자와 기호가 포함되어야 합니다."
+        "오류: 비밀번호는 6자리 이상, 숫자와 기호가 포함되어야 합니다.",
       );
       setLoading(false);
       return;
@@ -76,7 +76,7 @@ const SignUpPage = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`, // 가입 후 리디렉션될 페이지 (선택 사항)
+          emailRedirectTo: `${window.location.origin}`, // 가입 후 리디렉션될 페이지 (선택 사항)
         },
       });
 
@@ -89,7 +89,7 @@ const SignUpPage = () => {
       } else {
         // 이메일 인증이 필요한 경우 (Supabase 기본 설정)
         setMessage(
-          "인증 이메일이 발송되었습니다. 이메일을 확인하여 인증을 완료해주세요."
+          "인증 이메일이 발송되었습니다. 이메일을 확인하여 인증을 완료해주세요.",
         );
       }
     } catch (error) {
@@ -148,7 +148,7 @@ const SignUpPage = () => {
 
       <div style={{ textAlign: "center", fontSize: "14px" }}>
         <Link
-          href="/login"
+          href="/auth/login"
           style={{ color: "#007aff", textDecoration: "none" }}
         >
           로그인 페이지로

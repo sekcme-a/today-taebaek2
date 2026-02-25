@@ -59,7 +59,7 @@ export default function ShareButton({ title, text, imgSrc }) {
         ],
       });
       // window.Kakao.Share.sendScrap({
-      //   requestUrl: "https://western-news.co.kr",
+      //   requestUrl: "https://xn--2n1b19ndwjhoj6sb.com",
       // });
     }
   };
@@ -67,7 +67,7 @@ export default function ShareButton({ title, text, imgSrc }) {
   // 2. 페이스북 공유
   const handleFacebookShare = () => {
     const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      currentUrl
+      currentUrl,
     )}`;
     window.open(shareUrl, "_blank");
   };
@@ -76,7 +76,7 @@ export default function ShareButton({ title, text, imgSrc }) {
   const handleXShare = () => {
     const text = "이 페이지를 확인해보세요!";
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-      text
+      text,
     )}&url=${encodeURIComponent(currentUrl)}`;
     window.open(shareUrl, "_blank");
   };

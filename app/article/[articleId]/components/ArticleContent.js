@@ -36,7 +36,7 @@ export default function ArticleContent({ article }) {
             text={htmlToPlainString(article.content)}
             imgSrc={
               article.thumbnail_image ??
-              "https://western-news.co.kr/images/og_logo.png"
+              "https://xn--2n1b19ndwjhoj6sb.com/images/og_logo.png"
             }
           />
         </div>

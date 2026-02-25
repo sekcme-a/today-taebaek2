@@ -10,7 +10,7 @@ export default async function MainNews() {
     const { data: headlineData, error: headlineError } = await supabase
       .from("article_categories")
       .select("article_id")
-      .eq("category_slug", "general")
+      .eq("category_slug", "politics")
       .eq("is_main", true)
       .maybeSingle();
 

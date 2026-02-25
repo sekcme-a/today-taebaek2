@@ -4,13 +4,16 @@ const Footer = () => {
   const SPAN_CLASS = " px-2 text-sm text-gray-400 my-1";
 
   const FOOTER_ONE = [
-    "주소 - 경기도 시흥시 장현동 671-5  시티프론트561 더파이브437호",
-    "전화 - 031-311-8272",
-    "발행인 - 심귀자",
-    "편집인 - 심귀자",
-    "청소년보호책임자 - 심귀자",
+    "주소 - 강원특별자치 태백시 석공길28-14(장성동)",
+    "전화 - 010-5339-6943",
+    "발행인 - 김균식",
+    "편집인 - 김균식",
+    "청소년보호책임자 - 김균식",
   ];
-  const FOOTER_TWO = ["사업자명 - 서부뉴스", "사업자등록번호 - 710-81-02517"];
+  const FOOTER_TWO = [
+    "사업자명 - 투데이 태백",
+    "사업자등록번호 - 268-06-03022",
+  ];
   return (
     <footer className="  md:mx-[4vw] lg:mx-[7vw] mx-[12px]">
       <div className="mt-18 flex flex-col md:flex-row border-t-2 border-white py-10 px-2 items-center">
@@ -45,9 +48,9 @@ const Footer = () => {
               </li>
             ))}
           </ul>
-          <p className="text-sm text-gray-400 pl-2 mt-2 text-center md:text-start">{`서부뉴스의 모든 콘텐트(기사)는 저작권법의 보호를 받은바, 무단 전재, 복사, 배포 등을 금합니다.`}</p>
+          <p className="text-sm text-gray-400 pl-2 mt-2 text-center md:text-start">{`투데이태백의 모든 콘텐트(기사)는 저작권법의 보호를 받은바, 무단 전재, 복사, 배포 등을 금합니다.`}</p>
           <p className="text-sm text-gray-400 pl-2 text-center md:text-start">
-            Copyright by Western news Co., Ltd. All Rights Reserved
+            Copyright by Today Taebaek Co., Ltd. All Rights Reserved
           </p>
         </div>
       </div>

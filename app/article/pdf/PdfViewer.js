@@ -43,7 +43,7 @@ export default function PdfViewer() {
           <Link href="/" className="relative w-[120px] h-[40px] block">
             <Image
               src="/images/logo_white.png"
-              alt="서부뉴스"
+              alt="투데이태백"
               fill
               style={{ objectFit: "contain" }}
               priority

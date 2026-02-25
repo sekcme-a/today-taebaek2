@@ -1,7 +1,7 @@
 const DATA = {
-  NAME: `서부뉴스`,
+  NAME: `투데이태백`,
   DESCRIPTION: `서부 뉴스에서 실시간 속보와 핵심 정보를 놓치지 마세요, 가장 빠르고 정확한 오늘의 주요 뉴스 신문. `,
-  URL: `https://western-news.co.kr`,
+  URL: `https://xn--2n1b19ndwjhoj6sb.com`,
 };
 
 export function createMetadata({ title, description, url }) {

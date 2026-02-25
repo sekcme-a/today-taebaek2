@@ -1,8 +1,8 @@
 const DATA = {
-  NAME: `서부뉴스`,
-  SUBTITLE: `내일의 중심이 되는 뉴스`,
+  NAME: `투데이태백`,
+  SUBTITLE: `오늘의 태백 뉴스`,
   DESCRIPTION: `서부 뉴스에서 실시간 속보와 핵심 정보를 놓치지 마세요, 가장 빠르고 정확한 오늘의 주요 뉴스 신문.`,
-  URL: `https://www.western-news.co.kr`,
+  URL: `https://www.xn--2n1b19ndwjhoj6sb.com`,
 };
 
 const metadata = {
