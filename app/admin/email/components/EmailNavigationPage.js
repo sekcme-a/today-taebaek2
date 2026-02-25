@@ -22,7 +22,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/utils/supabase/client";
-import imageCompression from "browser-image-compression"; // 라이브러리 임포트
+import imageCompression from "browser-image-compression";
 
 const TEXT = `아래의 문장은 hwp파일에 들어있는 보도자료들을 복사한거야. 규칙에 맞게 json 형태로 변환해줘. 
 1. 데이터 형식은 [{title, content, slug}] 
@@ -43,7 +43,7 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
   const [files, setFiles] = useState([]); // 압축된 이미지 파일들
   const [jsonInput, setJsonInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompressing, setIsCompressing] = useState(false); // 압축 로딩 상태 추가
+  const [isCompressing, setIsCompressing] = useState(false);
   const [toast, setToast] = useState({
     open: false,
     message: "",
@@ -74,10 +74,10 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
     setToast({ open: true, message, severity });
 
   // --- 이미지 압축 로직 ---
-  const handleImageCompression = async (rawFiles) => {
+  const handleImageCompression = useCallback(async (rawFiles) => {
     const options = {
-      maxSizeMB: 0.7, // 최대 1MB
-      maxWidthOrHeight: 1920, // 최대 해상도
+      maxSizeMB: 0.7,
+      maxWidthOrHeight: 1920,
       useWebWorker: true,
     };
 
@@ -87,20 +87,20 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
         rawFiles.map(async (file) => {
           try {
             const compressedBlob = await imageCompression(file, options);
-            // 압축 후 원래 파일명을 유지하기 위해 다시 File 객체로 변환
+            // 원본 파일명을 유지하거나, 붙여넣기된 임시 이름을 사용
             return new File([compressedBlob], file.name, {
               type: file.type,
               lastModified: Date.now(),
             });
           } catch (err) {
             console.error("파일 압축 실패:", file.name, err);
-            return file; // 실패 시 원본 반환
+            return file;
           }
         }),
       );
       setFiles((prev) => [...prev, ...compressedFiles]);
       showToast(
-        `${compressedFiles.length}개의 이미지가 압축되어 추가되었습니다.`,
+        `${compressedFiles.length}개의 이미지가 추가되었습니다.`,
         "success",
       );
     } catch (error) {
@@ -108,11 +108,58 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
     } finally {
       setIsCompressing(false);
     }
-  };
-
-  const onDrop = useCallback((acceptedFiles) => {
-    handleImageCompression(acceptedFiles);
   }, []);
+
+  // --- [추가] 클립보드 붙여넣기 핸들러 ---
+  useEffect(() => {
+    const handlePaste = (event) => {
+      // 텍스트 필드나 입력창에서 붙여넣기 할 때는 파일 처리를 건너뜀
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      const items = event.clipboardData?.items;
+      const pastedFiles = [];
+
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            const file = items[i].getAsFile();
+            if (file) {
+              // 붙여넣은 이미지에 고유 파일명 부여 (확장자 포함)
+              const extension = file.type.split("/")[1] || "png";
+              const newFile = new File(
+                [file],
+                `pasted-image-${Date.now()}-${i}.${extension}`,
+                { type: file.type },
+              );
+              pastedFiles.push(newFile);
+            }
+          }
+        }
+      }
+
+      if (pastedFiles.length > 0) {
+        handleImageCompression(pastedFiles);
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
+  }, [handleImageCompression]);
+
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      handleImageCompression(acceptedFiles);
+    },
+    [handleImageCompression],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -180,7 +227,6 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
 
         const categoryMappings = [
           { article_id: insertedArticle.id, category_slug: article.slug },
-          // { article_id: insertedArticle.id, category_slug: "general" },
         ];
 
         const { error: categoryError } = await supabase
@@ -246,7 +292,10 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           fullWidth
           sx={{ mt: 1, height: 50 }}
           variant="contained"
-          onClick={() => navigator.clipboard.writeText(aiInstruction)}
+          onClick={() => {
+            navigator.clipboard.writeText(aiInstruction);
+            showToast("지시문이 복사되었습니다.");
+          }}
         >
           지시문 복사
         </Button>
@@ -296,7 +345,7 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
                 sx={{ fontSize: 40, color: "text.secondary", mb: 1 }}
               />
               <Typography>
-                이미지들을 이곳에 드래그하거나 클릭하세요. (자동 압축 적용)
+                이미지들을 이곳에 드래그, 클릭 또는 **붙여넣기(Ctrl+V)**
               </Typography>
             </>
           )}
@@ -369,9 +418,16 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           variant="contained"
           size="large"
           fullWidth
-          disabled={currentIndex === selectedEmails.length - 1}
+          // disabled={currentIndex === selectedEmails.length - 1}
           endIcon={<ArrowForwardIos />}
-          onClick={() => setCurrentIndex(currentIndex + 1)}
+          onClick={() => {
+            if (currentIndex === selectedEmails.length - 1) {
+              navigator.clipboard.writeText("is_end");
+              showToast("마지막 메일입니다.", "info");
+              return;
+            }
+            setCurrentIndex(currentIndex + 1);
+          }}
           sx={{ height: 70, fontSize: "1.2rem" }}
         >
           다음 메일
