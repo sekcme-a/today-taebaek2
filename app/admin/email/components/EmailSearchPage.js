@@ -54,6 +54,7 @@ export function EmailSearchPage({
             InputLabelProps={{ shrink: true }}
             fullWidth
           />
+          <p className="font-bold">{`검색 날짜 범위가 길다면 보낸 사람을 추가로 입력해주세요.(영문 이메일 주소)`}</p>
           <Button variant="contained" onClick={fetchEmails} disabled={loading}>
             {loading ? <CircularProgress size={24} /> : "검색"}
           </Button>

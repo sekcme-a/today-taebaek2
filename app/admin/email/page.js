@@ -8,8 +8,8 @@ export default function Email() {
   const [page, setPage] = useState(0);
 
   // 공통 상태
-  const [searchSender, setSearchSender] = useState("");
-  const [searchSubject, setSearchSubject] = useState("보도");
+  const [searchSender, setSearchSender] = useState("hj0915hj@korea.kr");
+  const [searchSubject, setSearchSubject] = useState("태백시");
   const [searchDate, setSearchDate] = useState(
     new Date().toISOString().slice(0, 10),
   );

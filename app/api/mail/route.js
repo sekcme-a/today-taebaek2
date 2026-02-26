@@ -1,19 +1,26 @@
 import { ImapFlow } from "imapflow";
+import { simpleParser } from "mailparser";
 
-// 첨부파일 유무를 확인하는 재귀 함수
+//날짜와 보낸사람에 따른 메일 UID 검색 후, 해당 UID들에서 제목 포함 키워드 필터링 후 그 중 첨부파일이 있는 메일만 반환하는 API
+
+// 일반 첨부파일 유무 확인 함수
 const checkAttachments = (structure) => {
   if (!structure) return false;
-
-  // 이 노드 자체가 첨부파일인지 확인
   if (structure.disposition === "attachment") return true;
-
-  // 자식 노드가 있으면 재귀적으로 확인
-  if (structure.childNodes && structure.childNodes.length > 0) {
+  if (structure.childNodes) {
     for (const node of structure.childNodes) {
       if (checkAttachments(node)) return true;
     }
   }
   return false;
+};
+
+// 대용량 첨부파일 URL 추출 함수
+const extractBigFileUrls = (text) => {
+  if (!text) return [];
+  const regex =
+    /https?:\/\/[\w\.]+(?::\d+)?\/bigDataDownload\/[a-zA-Z0-9+/=]+/g;
+  return text.match(regex) || [];
 };
 
 export async function GET(request) {
@@ -22,12 +29,22 @@ export async function GET(request) {
   const subjectQuery = searchParams.get("subject");
   const afterQuery = searchParams.get("after");
 
+  // IMAP Search Query 빌드
+  const searchQuery = {};
+
+  // if (subjectQuery) {
+  //   searchQuery.subject = subjectQuery;
+  // }
+
+  if (afterQuery) {
+    searchQuery.sentSince = new Date(afterQuery);
+  }
+  searchQuery.from = senderQuery || "";
+
+  // 발신자 리스트 처리 (search 단계에서 넣을 수도 있으나, 콤마 분리 처리를 위해 fetch 후 체크하거나 OR 조건을 써야함)
   const senderList = senderQuery
     ? senderQuery.split(",").map((s) => s.trim().toLowerCase())
     : [];
-
-  const afterDate = afterQuery ? new Date(afterQuery) : null;
-
   const client = new ImapFlow({
     host: "imap.daum.net",
     port: 993,
@@ -36,56 +53,77 @@ export async function GET(request) {
       user: process.env.DAUM_EMAIL,
       pass: process.env.DAUM_APP_PASSWORD,
     },
+    logger: false,
   });
 
   try {
     await client.connect();
-    await client.mailboxOpen("INBOX");
+    const lock = await client.getMailboxLock("INBOX");
 
-    const messages = [];
+    try {
+      const messages = [];
+      console.log(searchQuery);
+      // 1. 서버 측 검색을 통해 조건에 맞는 UID 목록만 가져옴
+      // sender는 복수 처리를 위해 fetch 루프 내에서 필터링하거나, 복잡한 search query를 구성할 수 있습니다.
+      const uids = await client.search(searchQuery);
 
-    // uid와 bodyStructure도 함께 가져옵니다.
-    for await (let msg of client.fetch("1:*", {
-      envelope: true,
-      uid: true,
-      bodyStructure: true,
-    })) {
-      const fromAddress = msg.envelope.from?.[0]?.address?.toLowerCase() ?? "";
-      const subject = msg.envelope.subject?.toLowerCase() ?? "";
-      const date = new Date(msg.envelope.date);
+      console.log(uids);
 
-      // 첨부파일 유무 확인
-      const hasAttachments = checkAttachments(msg.bodyStructure);
+      if (uids.length > 0) {
+        // 2. 검색된 UID들에 대해서만 필요한 데이터(source 등)를 Fetch
+        for await (let msg of client.fetch(uids, {
+          envelope: true,
+          uid: true,
+          bodyStructure: true,
+          source: true,
+        })) {
+          const fromAddress =
+            msg.envelope.from?.[0]?.address?.toLowerCase() ?? "";
 
-      // ✅ 필터 조건
-      const matchSender =
-        senderList.length === 0 ||
-        senderList.some((s) => fromAddress.includes(s));
+          // 발신자(senderList) 필터링 (서버 search 쿼리에서 처리하기 까다로운 콤마 구분자 처리)
+          if (
+            senderList.length > 0 &&
+            !senderList.some((s) => fromAddress.includes(s))
+          ) {
+            continue;
+          }
 
-      const matchSubject =
-        !subjectQuery || subject.includes(subjectQuery.toLowerCase());
+          // 메일 소스 파싱
+          const parsed = await simpleParser(msg.source);
 
-      const matchDate = !afterDate || date.getTime() >= afterDate.getTime();
+          // 일반 첨부파일 확인
+          const hasAttachments = checkAttachments(msg.bodyStructure);
 
-      if (matchSender && matchSubject && matchDate) {
-        messages.push({
-          uid: msg.uid, // ⭐ UID 추가
-          subject: msg.envelope.subject,
-          from: msg.envelope.from?.[0]?.address ?? "(unknown)",
-          date: msg.envelope.date,
-          hasAttachments: hasAttachments, // ⭐ 첨부파일 유무 추가
-        });
+          // 대용량 첨부파일 URL 추출
+          const bigFileUrls = [
+            ...extractBigFileUrls(parsed.html),
+            ...extractBigFileUrls(parsed.text),
+          ];
+
+          const uniqueBigFileUrls = [...new Set(bigFileUrls)];
+
+          messages.push({
+            uid: msg.uid,
+            subject: msg.envelope.subject,
+            from: msg.envelope.from?.[0]?.address ?? "(unknown)",
+            date: msg.envelope.date,
+            hasAttachments: hasAttachments || uniqueBigFileUrls.length > 0,
+            bigFileUrls: uniqueBigFileUrls,
+          });
+        }
       }
+
+      // 최신순 정렬
+      messages.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      return Response.json(messages);
+    } finally {
+      lock.release();
     }
-
-    await client.logout();
-
-    // 최신순 정렬
-    messages.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    return Response.json(messages); // 최근 30개만 반환
   } catch (error) {
     console.error("Daum Mail Error:", error);
     return Response.json({ error: error.message }, { status: 500 });
+  } finally {
+    await client.logout();
   }
 }

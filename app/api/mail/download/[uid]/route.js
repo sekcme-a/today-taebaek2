@@ -49,7 +49,7 @@ export async function GET(request, { params }) {
   if (!uid) {
     return Response.json(
       { error: "유효한 UID가 필요합니다." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -70,14 +70,14 @@ export async function GET(request, { params }) {
     let message = await client.fetchOne(
       uid,
       { bodyStructure: true, envelope: true }, // envelope도 가져와서 제목을 ZIP 파일명에 사용
-      { uid: true }
+      { uid: true },
     );
 
     if (!message || !message.bodyStructure) {
       await client.logout();
       return Response.json(
         { error: "메일 정보를 찾을 수 없습니다." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -129,7 +129,7 @@ export async function GET(request, { params }) {
 
       if (!partStream) {
         console.warn(
-          `UID ${uid}의 파트 ${attachment.path} 스트림 가져오기 실패.`
+          `UID ${uid}의 파트 ${attachment.path} 스트림 가져오기 실패.`,
         );
         continue; // 이 파일만 건너뛰고 다음 파일 시도
       }
@@ -164,7 +164,7 @@ export async function GET(request, { params }) {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(
-          zipFilename
+          zipFilename,
         )}`,
       },
     });
@@ -177,7 +177,7 @@ export async function GET(request, { params }) {
     } catch (e) {}
     return Response.json(
       { error: `첨부파일 다운로드 중 오류 발생: ${error.message}` },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

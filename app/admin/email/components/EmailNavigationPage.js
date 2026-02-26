@@ -15,14 +15,16 @@ import {
   ArrowBackIos,
   ArrowForwardIos,
   CloudUpload,
-  ContentCopy,
   Save,
+  Download,
 } from "@mui/icons-material";
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { v4 as uuidv4 } from "uuid";
 import { createBrowserSupabaseClient } from "@/utils/supabase/client";
 import imageCompression from "browser-image-compression";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const TEXT = `아래의 문장은 hwp파일에 들어있는 보도자료들을 복사한거야. 규칙에 맞게 json 형태로 변환해줘. 
 1. 데이터 형식은 [{title, content, slug}] 
@@ -37,13 +39,49 @@ const IMG_TEXT = `기사 JSON와 이미지명 JSON을 합쳐줘. 이미지명을
 3. 기사가 1개라면, 모든 이미지가 그 기사에 해당돼.
 `;
 
+// MIME 타입별 확장자 매핑 테이블
+const MIME_EXT_MAP = {
+  // 문서
+  "application/x-hwp": "hwp",
+  "application/haansofthwp": "hwp",
+  "application/vnd.hancom.hwp": "hwp",
+  "application/x-tika-msoffice": "doc",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  "application/vnd.ms-powerpoint": "ppt",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+    "pptx",
+  "application/pdf": "pdf",
+  "text/plain": "txt",
+  "text/html": "html",
+
+  // 이미지
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/gif": "gif",
+  "image/bmp": "bmp",
+  "image/webp": "webp",
+  "image/svg+xml": "svg",
+
+  // 압축 파일
+  "application/zip": "zip",
+  "application/x-zip-compressed": "zip",
+  "application/x-rar-compressed": "rar",
+  "application/x-7z-compressed": "7z",
+  "application/x-tar": "tar",
+};
+
 export function EmailNavigationPage({ selectedEmails, onGoBack }) {
   const supabase = createBrowserSupabaseClient();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [files, setFiles] = useState([]); // 압축된 이미지 파일들
+  const [files, setFiles] = useState([]);
   const [jsonInput, setJsonInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [toast, setToast] = useState({
     open: false,
     message: "",
@@ -52,6 +90,8 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
 
   const [titleContentJson, setTitleContentJson] = useState("");
   const [aiInstruction, setAiInstruction] = useState("");
+
+  const currentMail = selectedEmails[currentIndex];
 
   useEffect(() => {
     fetchCategories();
@@ -68,32 +108,24 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
     );
   };
 
-  const currentMail = selectedEmails[currentIndex];
   const handleCloseToast = () => setToast({ ...toast, open: false });
   const showToast = (message, severity = "info") =>
     setToast({ open: true, message, severity });
 
-  // --- 이미지 압축 로직 ---
   const handleImageCompression = useCallback(async (rawFiles) => {
     const options = {
       maxSizeMB: 0.7,
       maxWidthOrHeight: 1920,
       useWebWorker: true,
     };
-
     setIsCompressing(true);
     try {
       const compressedFiles = await Promise.all(
         rawFiles.map(async (file) => {
           try {
             const compressedBlob = await imageCompression(file, options);
-            // 원본 파일명을 유지하거나, 붙여넣기된 임시 이름을 사용
-            return new File([compressedBlob], file.name, {
-              type: file.type,
-              lastModified: Date.now(),
-            });
+            return new File([compressedBlob], file.name, { type: file.type });
           } catch (err) {
-            console.error("파일 압축 실패:", file.name, err);
             return file;
           }
         }),
@@ -103,147 +135,173 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
         `${compressedFiles.length}개의 이미지가 추가되었습니다.`,
         "success",
       );
-    } catch (error) {
-      showToast("이미지 압축 중 오류가 발생했습니다.", "error");
     } finally {
       setIsCompressing(false);
     }
   }, []);
 
-  // --- [추가] 클립보드 붙여넣기 핸들러 ---
   useEffect(() => {
     const handlePaste = (event) => {
-      // 텍스트 필드나 입력창에서 붙여넣기 할 때는 파일 처리를 건너뜀
-      const target = event.target;
       if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement
-      ) {
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      )
         return;
-      }
-
       const items = event.clipboardData?.items;
       const pastedFiles = [];
-
       if (items) {
         for (let i = 0; i < items.length; i++) {
           if (items[i].type.indexOf("image") !== -1) {
             const file = items[i].getAsFile();
             if (file) {
-              // 붙여넣은 이미지에 고유 파일명 부여 (확장자 포함)
-              const extension = file.type.split("/")[1] || "png";
-              const newFile = new File(
-                [file],
-                `pasted-image-${Date.now()}-${i}.${extension}`,
-                { type: file.type },
+              const ext = file.type.split("/")[1] || "png";
+              pastedFiles.push(
+                new File([file], `pasted-${Date.now()}-${i}.${ext}`, {
+                  type: file.type,
+                }),
               );
-              pastedFiles.push(newFile);
             }
           }
         }
       }
-
-      if (pastedFiles.length > 0) {
-        handleImageCompression(pastedFiles);
-      }
+      if (pastedFiles.length > 0) handleImageCompression(pastedFiles);
     };
-
     window.addEventListener("paste", handlePaste);
-    return () => {
-      window.removeEventListener("paste", handlePaste);
-    };
+    return () => window.removeEventListener("paste", handlePaste);
   }, [handleImageCompression]);
 
-  const onDrop = useCallback(
-    (acceptedFiles) => {
-      handleImageCompression(acceptedFiles);
-    },
-    [handleImageCompression],
-  );
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: handleImageCompression,
     accept: { "image/*": [] },
   });
 
-  const handleDownload = () => {
+  // --- [수정된 부분] 통합 다운로드 핸들러 (확장자 복구 로직 포함) ---
+  const handleDownload = async () => {
     if (!currentMail) return;
-    window.location.href = `/api/mail/download/${currentMail.uid}`;
+    setIsDownloading(true);
+    showToast("파일 확장자를 확인하며 압축하는 중...", "info");
+
+    const mainZip = new JSZip();
+
+    try {
+      // 1. 대용량 파일 처리 (Proxy 활용 및 확장자 추론)
+      const bigUrls = currentMail.bigFileUrls;
+      const urlList = Array.isArray(bigUrls)
+        ? bigUrls
+        : bigUrls
+          ? [bigUrls]
+          : [];
+
+      const bigFilePromises = urlList.map(async (url, idx) => {
+        try {
+          const res = await fetch(
+            `/api/proxy-download?url=${encodeURIComponent(url)}`,
+          );
+          if (!res.ok) throw new Error();
+
+          const blob = await res.blob();
+          const contentType = res.headers
+            .get("Content-Type")
+            ?.split(";")[0]
+            .toLowerCase();
+
+          // 기본 파일명 추출
+          let fileName =
+            url.split("/").filter(Boolean).pop()?.split("?")[0] ||
+            `file-${idx + 1}`;
+
+          // 파일명에 점(.)이 없거나 확장자가 의심될 때 MIME 타입으로 확장자 추가
+          const hasExtension = fileName.includes(".");
+          if (!hasExtension && contentType && MIME_EXT_MAP[contentType]) {
+            fileName = `${fileName}.${MIME_EXT_MAP[contentType]}`;
+          }
+
+          mainZip.file(fileName, blob);
+        } catch (err) {
+          console.error("대용량 파일 다운로드 실패:", url);
+        }
+      });
+
+      // 2. 일반 첨부파일 처리 (내부 파일 추출)
+      const mainResponse = await fetch(`/api/mail/download/${currentMail.uid}`);
+      if (mainResponse.ok) {
+        const mainBlob = await mainResponse.blob();
+        const tempZip = new JSZip();
+        const loadedZip = await tempZip.loadAsync(mainBlob);
+
+        const extractPromises = [];
+        loadedZip.forEach((relativePath, file) => {
+          if (!file.dir) {
+            extractPromises.push(
+              file
+                .async("blob")
+                .then((content) => mainZip.file(relativePath, content)),
+            );
+          }
+        });
+        await Promise.all(extractPromises);
+      }
+
+      await Promise.all(bigFilePromises);
+
+      // 3. 저장
+      const finalZipContent = await mainZip.generateAsync({ type: "blob" });
+      saveAs(finalZipContent, `${currentMail.subject || "download"}.zip`);
+      showToast("모든 파일이 통합되어 다운로드되었습니다.", "success");
+    } catch (error) {
+      showToast("다운로드 중 오류가 발생했습니다.", "error");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleSaveToSupabase = async () => {
     if (!jsonInput) return showToast("JSON 데이터를 입력해주세요.", "warning");
     setIsSubmitting(true);
-
     try {
       const parsedData = JSON.parse(jsonInput);
-
       for (const article of parsedData) {
-        const { data: insertedArticle, error: dbError } = await supabase
+        const { data: inserted, error: dbErr } = await supabase
           .from("articles")
-          .insert({
-            title: article.title,
-            content: article.content,
-          })
+          .insert({ title: article.title, content: article.content })
           .select()
           .single();
-
-        if (dbError) throw dbError;
+        if (dbErr) throw dbErr;
 
         const publicUrls = [];
-
         for (const fileName of article.images || []) {
-          const fileToUpload = files.find((f) => {
-            return f.name.normalize("NFC") === fileName.normalize("NFC");
-          });
-
-          if (!fileToUpload) continue;
-
-          const fileExt = fileToUpload.name.split(".").pop();
-          const filePath = `admin/images/${insertedArticle.id}/${uuidv4()}.${fileExt}`;
-
-          const { error: uploadError } = await supabase.storage
+          const file = files.find(
+            (f) => f.name.normalize("NFC") === fileName.normalize("NFC"),
+          );
+          if (!file) continue;
+          const path = `admin/images/${inserted.id}/${uuidv4()}.${file.name.split(".").pop()}`;
+          const { error: upErr } = await supabase.storage
             .from("public-bucket")
-            .upload(filePath, fileToUpload);
-
-          if (uploadError) throw uploadError;
-
+            .upload(path, file);
+          if (upErr) throw upErr;
           const {
             data: { publicUrl },
-          } = supabase.storage.from("public-bucket").getPublicUrl(filePath);
-
+          } = supabase.storage.from("public-bucket").getPublicUrl(path);
           publicUrls.push(publicUrl);
         }
 
-        const { error: updateError } = await supabase
+        await supabase
           .from("articles")
           .update({
             images_bodo: publicUrls,
             thumbnail_image: publicUrls[0] || null,
           })
-          .eq("id", insertedArticle.id);
+          .eq("id", inserted.id);
 
-        if (updateError) throw updateError;
-
-        const categoryMappings = [
-          { article_id: insertedArticle.id, category_slug: article.slug },
-        ];
-
-        const { error: categoryError } = await supabase
+        await supabase
           .from("article_categories")
-          .insert(categoryMappings);
-
-        if (categoryError)
-          console.error("Category Insert Error:", categoryError);
+          .insert({ article_id: inserted.id, category_slug: article.slug });
       }
-
-      showToast("모든 기사와 카테고리가 성공적으로 저장되었습니다.", "success");
+      showToast("성공적으로 저장되었습니다.", "success");
       setFiles([]);
       setJsonInput("");
-      setTitleContentJson("");
     } catch (error) {
-      console.error(error);
-      showToast(`저장 실패: ${error.message}`, "error");
+      showToast(`에러: ${error.message}`, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -290,11 +348,11 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
 
         <Button
           fullWidth
-          sx={{ mt: 1, height: 50 }}
           variant="contained"
+          sx={{ height: 50, mb: 1 }}
           onClick={() => {
             navigator.clipboard.writeText(aiInstruction);
-            showToast("지시문이 복사되었습니다.");
+            showToast("지시문 복사됨");
           }}
         >
           지시문 복사
@@ -304,9 +362,19 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           variant="contained"
           fullWidth
           onClick={handleDownload}
-          sx={{ height: 50, my: 2 }}
+          disabled={isDownloading}
+          startIcon={
+            isDownloading ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              <Download />
+            )
+          }
+          sx={{ height: 50, mb: 3 }}
         >
-          이 메일의 첨부파일 다운로드 (ZIP)
+          {isDownloading
+            ? "파일 수집 및 압축 중..."
+            : "전체 첨부파일 통합 다운로드"}
         </Button>
 
         <TextField
@@ -330,31 +398,16 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
             bgcolor: isDragActive ? "#e3f2fd" : "#fff",
             cursor: "pointer",
             mb: 2,
-            position: "relative",
           }}
         >
           <input {...getInputProps()} />
           {isCompressing ? (
-            <Stack alignItems="center" spacing={1}>
-              <CircularProgress size={24} />
-              <Typography>이미지 압축 중...</Typography>
-            </Stack>
+            <CircularProgress size={24} />
           ) : (
-            <>
-              <CloudUpload
-                sx={{ fontSize: 40, color: "text.secondary", mb: 1 }}
-              />
-              <Typography>
-                이미지들을 이곳에 드래그, 클릭 또는 **붙여넣기(Ctrl+V)**
-              </Typography>
-            </>
+            <Typography>이미지 드래그 또는 붙여넣기 (Ctrl+V)</Typography>
           )}
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 1 }}
-          >
-            현재 선택된 파일: {files.length}개
+          <Typography variant="caption" sx={{ display: "block", mt: 1 }}>
+            선택된 파일: {files.length}개
           </Typography>
         </Box>
 
@@ -365,13 +418,13 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           sx={{ my: 1 }}
           onClick={() => {
             navigator.clipboard.writeText(
-              `${IMG_TEXT}\n\n***이미지명 JSON***\n${JSON.stringify(
+              `${IMG_TEXT}\n\n***이미지명***\n${JSON.stringify(
                 files.map((f) => f.name),
                 null,
                 2,
-              )}\n\n***기사 JSON***\n${titleContentJson}`,
+              )}\n\n***기사***\n${titleContentJson}`,
             );
-            showToast("AI 프롬프트가 복사되었습니다.", "info");
+            showToast("AI 프롬프트 복사됨");
           }}
         >
           이미지 포함 AI 명령어 복사
@@ -383,7 +436,6 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           rows={6}
           fullWidth
           variant="outlined"
-          placeholder='[{"title": "...", "content": "...", "images": ["파일명.jpg"], "slug": "..."}]'
           value={jsonInput}
           onChange={(e) => setJsonInput(e.target.value)}
           sx={{ mb: 3, bgcolor: "white" }}
@@ -401,38 +453,6 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           {isSubmitting ? "저장 중..." : "Supabase에 저장하기"}
         </Button>
       </Paper>
-
-      <Stack direction="row" spacing={2}>
-        <Button
-          variant="contained"
-          size="large"
-          fullWidth
-          disabled={currentIndex === 0}
-          startIcon={<ArrowBackIos />}
-          onClick={() => setCurrentIndex(currentIndex - 1)}
-          sx={{ height: 70, fontSize: "1.2rem", bgcolor: "#757575" }}
-        >
-          이전 메일
-        </Button>
-        <Button
-          variant="contained"
-          size="large"
-          fullWidth
-          // disabled={currentIndex === selectedEmails.length - 1}
-          endIcon={<ArrowForwardIos />}
-          onClick={() => {
-            if (currentIndex === selectedEmails.length - 1) {
-              navigator.clipboard.writeText("is_end");
-              showToast("마지막 메일입니다.", "info");
-              return;
-            }
-            setCurrentIndex(currentIndex + 1);
-          }}
-          sx={{ height: 70, fontSize: "1.2rem" }}
-        >
-          다음 메일
-        </Button>
-      </Stack>
 
       <Button variant="text" onClick={onGoBack}>
         목록으로 돌아가기
