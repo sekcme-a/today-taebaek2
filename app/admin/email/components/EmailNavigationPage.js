@@ -544,6 +544,8 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
             fullWidth
             endIcon={<ArrowForwardIos />}
             onClick={() => {
+              setTitleContentJson("");
+              setFiles([]);
               if (currentIndex === selectedEmails.length - 1) {
                 navigator.clipboard.writeText("mail_finished");
                 return;
