@@ -545,7 +545,6 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
             variant="contained"
             size="large"
             fullWidth
-            disabled={currentIndex === selectedEmails.length - 1}
             endIcon={<ArrowForwardIos />}
             onClick={() => {
               if (currentIndex === selectedEmails.length - 1) {
