@@ -95,13 +95,10 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
   }, []);
 
   const fetchCategories = async () => {
-    const { data } = await supabase
-      .from("categories")
-      .select("slug")
-      .eq("parent_id", "422d1e7f-6582-4fe6-8362-ed7e83c04ec3");
+    const { data } = await supabase.from("categories").select("slug");
     const text = data?.map((item) => item.slug).join(",") || "";
     setAiInstruction(
-      `${TEXT} "${text}" 중에 가장 어울리는 주제 하나 선택해 slug에 추가해.`,
+      `${TEXT} "${text}" 중에 가장 어울리는 주제 하나 선택해 slug에 추가해.\n\n`,
     );
   };
 
@@ -422,7 +419,7 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
             variant="contained"
             fullWidth
             onClick={handleDownload}
-            disabled={isDownloading}
+            // disabled={isDownloading}
             startIcon={
               isDownloading ? (
                 <CircularProgress size={20} color="inherit" />
