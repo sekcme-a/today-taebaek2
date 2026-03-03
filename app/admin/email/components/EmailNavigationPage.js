@@ -144,16 +144,21 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
         event.target instanceof HTMLTextAreaElement
       )
         return;
+
       const items = event.clipboardData?.items;
       const pastedFiles = [];
+
       if (items) {
         for (let i = 0; i < items.length; i++) {
           if (items[i].type.indexOf("image") !== -1) {
             const file = items[i].getAsFile();
             if (file) {
-              const ext = file.type.split("/")[1] || "png";
+              // 1. 파일 이름이 존재하면(파일 형태 복사) 그대로 사용,
+              // 2. 이름이 없으면(스크린샷 등) 기본값 지정
+              const originalName = file.name || `pasted-${Date.now()}-${i}`;
+
               pastedFiles.push(
-                new File([file], `pasted-${Date.now()}-${i}.${ext}`, {
+                new File([file], originalName, {
                   type: file.type,
                 }),
               );
@@ -214,15 +219,34 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           let fileName =
             url.split("/").filter(Boolean).pop()?.split("?")[0] ||
             `file-${idx + 1}`;
+
+          // 확장자 추출 (소문자 변환)
+          const extension = fileName.split(".").pop().toLowerCase();
+
+          // --- [추가된 필터링 로직] ---
+          // 1. 확장자가 hwp, hwpx인 경우
+          // 2. 또는 MIME 타입이 한글 관련인 경우
+          const isHwp =
+            ["hwp", "hwpx"].includes(extension) ||
+            contentType?.includes("hwp") ||
+            contentType?.includes("haansofthwp");
+
+          if (!isHwp) {
+            console.log(`한글 파일이 아니므로 제외됨: ${fileName}`);
+            return; // 한글 파일이 아니면 여기서 중단하여 zip에 추가하지 않음
+          }
+          // --------------------------
+
           const hasExtension = fileName.includes(".");
           if (!hasExtension && contentType && MIME_EXT_MAP[contentType]) {
             fileName = `${fileName}.${MIME_EXT_MAP[contentType]}`;
           }
+
           mainZip.file(fileName, blob);
         } catch (err) {
           console.error("대용량 파일 다운로드 실패:", url);
         } finally {
-          updateProgress(); // 하나 끝날 때마다 진행률 업데이트
+          updateProgress();
         }
       });
 
