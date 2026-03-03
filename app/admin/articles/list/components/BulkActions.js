@@ -4,6 +4,7 @@ import { useArticleSelection } from "./ArticleSelectionProvider";
 import { Button } from "@mui/material";
 import { createBrowserSupabaseClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { handleFileDelete } from "../../[articleId]/components/ArticleEditor/fileUtils";
 
 export default function BulkActions() {
   // clearSelection 함수를 Context에서 가져옵니다.
@@ -15,7 +16,7 @@ export default function BulkActions() {
     if (
       !isSelected ||
       !window.confirm(
-        `${selectedArticleIds.length}개의 기사를 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`
+        `${selectedArticleIds.length}개의 기사를 정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`,
       )
     ) {
       return;
@@ -24,16 +25,25 @@ export default function BulkActions() {
     try {
       const supabase = createBrowserSupabaseClient();
 
-      // Supabase에서 선택된 ID들을 가진 기사 삭제
-      const { error } = await supabase
+      // 1. article 데이터 모두 받아오기
+      // fileUtils 내에서 스토리지 파일을 지우기 위해 content 등의 필드가 포함된 전체 데이터를 가져옵니다.
+      const { data: articles, error: fetchError } = await supabase
         .from("articles")
-        .delete()
+        .select("*")
         .in("id", selectedArticleIds);
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
 
+      // 2. 받아온 모든 article들에게 await handleFileDelete({supabase, article}) 실행
+      // Promise.all을 사용하여 병렬로 처리하거나, for-of 문으로 순차 처리할 수 있습니다.
+      // 파일 삭제 후 DB 레코드도 함께 삭제되도록 fileUtils 로직을 따릅니다.
+      if (articles) {
+        for (const article of articles) {
+          await handleFileDelete({ supabase, article });
+        }
+      }
       alert(
-        `${selectedArticleIds.length}개의 기사가 성공적으로 삭제되었습니다.`
+        `${selectedArticleIds.length}개의 기사가 성공적으로 삭제되었습니다.`,
       );
       clearSelection(); // 삭제 후 선택 목록 초기화
       router.refresh(); // 목록 갱신

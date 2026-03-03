@@ -49,7 +49,7 @@ export const handleFileUpload = async ({
   // 이전 이미지와 비교하여 삭제
   const currentImages = extractImagePathsFromHtml(html);
   const unusedImages = prevImages.filter(
-    (path) => !currentImages.includes(path)
+    (path) => !currentImages.includes(path),
   );
   if (unusedImages.length) await deleteFiles(unusedImages);
 
@@ -91,7 +91,7 @@ export const handleFileUpload = async ({
 };
 
 export const handleFileDelete = async ({ supabase, article }) => {
-  const images = extractImagePathsFromHtml(article.content);
+  const images = extractImagePathsFromHtml(JSON.stringify(article));
   const filePaths = article.files?.map((f) => f.path) || [];
   await deleteFiles([...images, ...filePaths]);
   await supabase.from("articles").delete().eq("id", article.id);

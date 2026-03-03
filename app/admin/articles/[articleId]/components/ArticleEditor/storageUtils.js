@@ -24,11 +24,19 @@ export async function uploadFile(file, folder = "files", postId = "common") {
 // 파일/이미지 삭제
 export async function deleteFiles(paths = []) {
   const supabase = createBrowserSupabaseClient();
+
+  console.log(paths);
   if (!paths.length) return;
 
-  const cleanedPaths = paths.map((p) =>
-    typeof p === "string" ? p.replace(/^\/+/, "") : p.path.replace(/^\/+/, "")
-  );
+  const cleanedPaths = paths
+    .map((p) => {
+      if (!p) return null;
+
+      return typeof p === "string"
+        ? p.replace(/^\/+/, "")
+        : p.path.replace(/^\/+/, "");
+    })
+    .filter(Boolean);
 
   const { data, error } = await supabase.storage
     .from("public-bucket")
@@ -45,10 +53,11 @@ export async function deleteFiles(paths = []) {
 
 // HTML 내 이미지 경로 추출
 export function extractImagePathsFromHtml(html) {
-  const regex = /src="https:\/\/[^"]+\/public-bucket\/([^"]+)"/g;
+  const regex = /https:\/\/[^"]+\/public-bucket\/([^"]+)"/g;
   const paths = new Set();
   let match;
   while ((match = regex.exec(html)) !== null) {
+    console.log(match[1]);
     paths.add(match[1]);
   }
   return [...paths];

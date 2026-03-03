@@ -1,6 +1,6 @@
 const DATA = {
   NAME: `투데이태백`,
-  DESCRIPTION: `서부 뉴스에서 실시간 속보와 핵심 정보를 놓치지 마세요, 가장 빠르고 정확한 오늘의 주요 뉴스 신문. `,
+  DESCRIPTION: `태백의 정치, 경제, 사회, 문화 등 다양한 분야의 최신 뉴스를 빠르게 확인하세요.`,
   URL: `https://xn--2n1b19ndwjhoj6sb.com`,
 };
 
