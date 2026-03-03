@@ -88,6 +88,8 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
   const [titleContentJson, setTitleContentJson] = useState("");
   const [aiInstruction, setAiInstruction] = useState("");
 
+  const [clipboardText, setClipboardText] = useState("");
+
   const currentMail = selectedEmails[currentIndex];
 
   useEffect(() => {
@@ -546,6 +548,7 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
             onClick={() => {
               setTitleContentJson("");
               setFiles([]);
+              setClipboardText("");
               if (currentIndex === selectedEmails.length - 1) {
                 navigator.clipboard.writeText("mail_finished");
                 return;
@@ -558,6 +561,16 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
           </Button>
         </Stack>
       </Paper>
+
+      <TextField
+        multiline
+        rows={2}
+        value={clipboardText}
+        onChange={(e) => {
+          if (e.target.value !== "") navigator.clipboard.writeText("copied");
+          setClipboardText(e.target.value);
+        }}
+      />
 
       <Button variant="text" onClick={onGoBack}>
         목록으로 돌아가기
