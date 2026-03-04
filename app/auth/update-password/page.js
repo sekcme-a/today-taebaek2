@@ -17,7 +17,6 @@ const buttonStyle = {
   backgroundColor: "#007aff",
   color: "#ffffff",
   fontSize: "16px",
-  fontWeight: "bold",
   cursor: "pointer",
   marginTop: "10px",
   marginBottom: "15px",
@@ -63,10 +62,10 @@ const UpdatePasswordPage = () => {
           // 세션이 만료되거나 로그아웃된 경우
           setIsRecoverySession(false);
           setMessage(
-            "세션이 만료되었거나 유효하지 않습니다. 다시 시도해 주세요."
+            "세션이 만료되었거나 유효하지 않습니다. 다시 시도해 주세요.",
           );
         }
-      }
+      },
     );
 
     // 컴포넌트 언마운트 시 리스너 정리
@@ -88,7 +87,7 @@ const UpdatePasswordPage = () => {
 
     if (!validatePassword(password)) {
       setMessage(
-        "오류: 비밀번호는 6자리 이상, 숫자와 기호가 포함되어야 합니다."
+        "오류: 비밀번호는 6자리 이상, 숫자와 기호가 포함되어야 합니다.",
       );
       setLoading(false);
       return;
@@ -105,7 +104,7 @@ const UpdatePasswordPage = () => {
       }
 
       setMessage(
-        "비밀번호가 성공적으로 재설정되었습니다! 2초 후 홈 화면으로 이동합니다."
+        "비밀번호가 성공적으로 재설정되었습니다! 2초 후 홈 화면으로 이동합니다.",
       );
       // 비밀번호 업데이트 후 세션이 변경되므로 onAuthStateChange가 SIGNED_IN 이벤트를 발생시킬 수 있습니다.
       setTimeout(() => {
@@ -171,7 +170,7 @@ const UpdatePasswordPage = () => {
           )}
 
           <button type="submit" disabled={loading} style={buttonStyle}>
-            {loading ? "업데이트 중..." : "비밀번호 업데이트"}
+            {loading ? "변경 중..." : "비밀번호 변경"}
           </button>
         </form>
       )}

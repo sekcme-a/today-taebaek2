@@ -52,14 +52,20 @@ const ForgotPasswordPage = () => {
 
     try {
       // Supabase의 `resetPasswordForEmail` 함수 사용
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail({
+        email,
+        options: {
+          redirectTo:
+            "https://www.xn--2n1b19ndwjhoj6sb.com/auth/update-password",
+        },
+      });
 
       if (error) {
         throw error;
       }
 
       setMessage(
-        "비밀번호 재설정 이메일이 발송되었습니다. 받은 편지함을 확인해주세요."
+        "비밀번호 재설정 이메일이 발송되었습니다. 받은 편지함을 확인해주세요.",
       );
       setEmail("");
     } catch (error) {

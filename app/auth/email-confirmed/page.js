@@ -25,9 +25,7 @@ const EmailConfirmedPage = () => {
   const router = useRouter();
   return (
     <Container title="이메일 인증 완료">
-      <p className="text-center mb-4">
-        **회원가입이 성공적으로 완료되었습니다.**
-      </p>
+      <p className="text-center mb-4">회원가입이 성공적으로 완료되었습니다.</p>
       <p style={{ textAlign: "center", color: "#ccc", fontSize: "15px" }}>
         회원가입해 주셔서 감사합니다! 지금 바로 최신 뉴스를 만나보세요!
       </p>
