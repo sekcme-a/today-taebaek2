@@ -6,6 +6,7 @@ import NicknameSection from "./components/NicknameSection";
 import PasswordSection from "./components/PasswordSection";
 import SocialConnectSection from "./components/SocialConnectSection";
 import { createBrowserSupabaseClient } from "@/utils/supabase/client";
+import ResetPasswordSection from "./components/ResetPasswordSection";
 
 export default function MyPageClient({ initialUserData }) {
   const [userData, setUserData] = useState(initialUserData);
@@ -41,6 +42,8 @@ export default function MyPageClient({ initialUserData }) {
           currentNickname={userData.nickname}
           onUpdate={handleNicknameUpdate}
         />
+
+        {hasEmailProvider && <ResetPasswordSection email={userData.email} />}
 
         {/* 비밀번호 섹션 (1-2) */}
         {/* <PasswordSection
