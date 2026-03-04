@@ -29,14 +29,13 @@ const EmailConfirmedPage = () => {
         **회원가입이 성공적으로 완료되었습니다.**
       </p>
       <p style={{ textAlign: "center", color: "#ccc", fontSize: "15px" }}>
-        회원가입해 주셔서 감사합니다! 이제 로그인 페이지로 이동하여 계정에
-        접속할 수 있습니다.
+        회원가입해 주셔서 감사합니다! 지금 바로 최신 뉴스를 만나보세요!
       </p>
       <button
-        onClick={() => router.push("/auth/login")}
+        onClick={() => router.push("/")}
         style={{ ...buttonStyle, backgroundColor: "#007aff" }}
       >
-        로그인 페이지로
+        메인 화면으로
       </button>
     </Container>
   );

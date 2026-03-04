@@ -22,7 +22,7 @@ export default function PasswordSection({
       alert(`비밀번호 재설정 요청 실패: ${error.message}`);
     } else {
       alert(
-        `${email}로 비밀번호 재설정 메일을 발송했습니다. 이메일을 확인해주세요.`
+        `${email}로 비밀번호 재설정 메일을 발송했습니다. 이메일을 확인해주세요.`,
       );
     }
   };

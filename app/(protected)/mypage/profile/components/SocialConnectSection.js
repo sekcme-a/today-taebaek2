@@ -17,7 +17,7 @@ export default function SocialConnectSection({
     // 1가지 방식의 로그인만 있을 경우 (2-1)
     if (totalLoginMethods <= 1) {
       alert(
-        "최소 1개의 계정은 연결되어야 해제가 가능합니다. 비밀번호를 설정하거나 다른 소셜 로그인 계정을 연결해주세요."
+        "최소 1개의 계정은 연결되어야 해제가 가능합니다. 비밀번호를 설정하거나 다른 소셜 로그인 계정을 연결해주세요.",
       );
       return;
     }
@@ -31,7 +31,7 @@ export default function SocialConnectSection({
 
     // console.log(`[TODO] ${providerName} 연결 해제 로직 실행 (서버 필요)`);
     alert(
-      `${providerMap[providerName]} 연결 해제 요청이 처리되었습니다. (실제 해제는 서버 로직 필요)`
+      `${providerMap[providerName]} 연결 해제 요청이 처리되었습니다. (실제 해제는 서버 로직 필요)`,
     );
   };
 
@@ -46,12 +46,12 @@ export default function SocialConnectSection({
             <span className="font-medium">
               {providerMap[provider] || provider} (연결됨)
             </span>
-            <button
+            {/* <button
               onClick={() => handleDisconnect(provider)}
               className="px-3 py-1 text-sm bg-gray-600 text-white hover:bg-gray-700 rounded hover:bg-red-600 cursor-pointer"
             >
               해제
-            </button>
+            </button> */}
           </div>
         ))
       ) : (
@@ -61,10 +61,10 @@ export default function SocialConnectSection({
         </p>
       )}
 
-      <p className="text-sm text-gray-500 mt-4">
+      {/* <p className="text-sm text-gray-500 mt-4">
         * 비밀번호가 설정되지 않은 경우, 소셜 로그인 계정이 최소 1개 있어야
         합니다.
-      </p>
+      </p> */}
     </div>
   );
 }
