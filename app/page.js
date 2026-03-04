@@ -23,8 +23,8 @@ export default function Home() {
           className="my-4 md:my-10"
         />
         <BodyOne
-          leftCategorySlugs={["politics", "siheung"]}
-          rightCategorySlug="events"
+          leftCategorySlugs={["politics", "social"]}
+          rightCategorySlug="event"
           rightCategoryName="행사/축제"
           id="1"
         />
@@ -34,14 +34,14 @@ export default function Home() {
           width="100%"
           className="my-4 md:my-10 aspect-[720/144] md:aspect-[720/90] "
         />
-        <BodyTwo categorySlug="special" />
+        <BodyTwo categorySlug="eco" />
         <AdBanner
           ad_type="main_body_two_bottom_full"
           width="100%"
           className="my-4 md:my-10 aspect-[720/144] md:aspect-[720/90] "
         />
         <BodyOne
-          leftCategorySlugs={["ansan", "gwangmyeong"]}
+          leftCategorySlugs={["it", "story"]}
           rightCategorySlug="opinion"
           rightCategoryName="오피니언"
           id="2"
@@ -52,7 +52,7 @@ export default function Home() {
           width="100%"
           className="my-4 md:my-10 aspect-[720/144] md:aspect-[720/90] "
         />
-        <BodyTwo categorySlug="economy" />
+        <BodyTwo categorySlug="culture" />
         <AdBanner
           ad_type="main_body_two_2_bottom_full"
           width="100%"
@@ -60,10 +60,10 @@ export default function Home() {
         />
         <BodyThree
           categorys={[
-            { slug: "society", name: "사회" },
-            { slug: "lifestyle", name: "생활/문화" },
+            { slug: "social", name: "사회" },
+            { slug: "culture", name: "문화" },
             { slug: "sports", name: "스포츠" },
-            { slug: "special", name: "기획/특집" },
+            { slug: "opinion", name: "오피니언" },
           ]}
         />
         <AdBanner ad_type="main_bottom_full" width="100%" />

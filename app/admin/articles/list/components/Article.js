@@ -9,7 +9,7 @@ import CategorySelector from "../../[articleId]/components/ArticleEditor/Categor
 import { useArticleSelection } from "./ArticleSelectionProvider";
 import { Checkbox } from "@mui/material";
 
-export default function Article({ articleId }) {
+export default function Article({ articleId, isMain }) {
   const [article, setArticle] = useState(null);
   const [categories, setCategories] = useState([]); // 현재 연결된 카테고리 (이름 표시용)
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]); // CategorySelector에서 사용될 ID 목록
@@ -50,7 +50,7 @@ export default function Article({ articleId }) {
         categories (
           id, name
         )
-      `
+      `,
       )
       .eq("article_id", articleId);
 

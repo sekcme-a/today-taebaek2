@@ -8,6 +8,7 @@ import { useTheme } from "@mui/material/styles";
 export default function ArticlePagination({
   currentPage,
   totalPages,
+  category,
   search = "",
 }) {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function ArticlePagination({
   const handleChange = (event, page) => {
     const params = new URLSearchParams();
     if (search) params.set("search", search);
+    if (category) params.set("category", category);
     params.set("page", page);
 
     router.push(`/admin/articles/list?${params.toString()}`);

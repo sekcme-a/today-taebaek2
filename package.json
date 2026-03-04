@@ -36,6 +36,7 @@
     "mailparser": "^3.9.3",
     "next": "15.5.9",
     "node-imap": "^0.9.6",
+    "papaparse": "^5.5.3",
     "quill": "^2.0.3",
     "quill-image-resize-module-react": "^3.0.0",
     "quill-image-resize-module-ts": "^3.0.3",
