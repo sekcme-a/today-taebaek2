@@ -5,10 +5,11 @@ export default async function LoginLayout({ children }) {
   const supabase = await createServerSupabaseClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session) {
+  // 이미 로그인된 상태라면 메인으로 보냄
+  if (user) {
     redirect("/");
   }
 
