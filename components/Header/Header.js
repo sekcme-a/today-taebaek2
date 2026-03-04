@@ -29,12 +29,12 @@ export default async function Header({ scrolled, hasH1 }) {
         <h1>
           <Link
             href="/"
-            title="투데이태백 홈으로 이동"
             className="relative w-[120px] h-[33px] md:w-[170px] md:h-[50px] block"
           >
+            <span class="sr-only">투데이태백 - 오늘의 태백 뉴스</span>
             <Image
               src="/images/logo_white.png"
-              alt="투데이태백"
+              alt="투데이태백 로고"
               fill
               style={{ objectFit: "contain" }}
               priority
