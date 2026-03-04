@@ -76,7 +76,7 @@ const SignUpPage = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}`, // 가입 후 리디렉션될 페이지 (선택 사항)
+          emailRedirectTo: `https://www.xn--2n1b19ndwjhoj6sb.com/auth/email-confirmed`, // 가입 후 리디렉션될 페이지 (선택 사항)
         },
       });
 

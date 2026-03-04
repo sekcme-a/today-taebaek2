@@ -225,13 +225,13 @@ export default function ArticleEditor({
         theme="snow"
       />
       <div>
-        <input
+        {/* <input
           type="file"
           multiple
           onChange={(e) =>
             setFiles((prev) => [...prev, ...Array.from(e.target.files)])
           }
-        />
+        /> */}
         <ul className="mt-2 text-sm text-gray-600">
           {files.map((file, idx) => (
             <li key={idx} className="flex items-center gap-2">
