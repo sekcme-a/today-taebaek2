@@ -13,11 +13,11 @@ export default async function Header({ scrolled, hasH1 }) {
 
   // 세션 정보 가져오기
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // 로그인 여부 (Boolean)
-  const isSignedIn = !!session;
+  const isSignedIn = !!user;
 
   return (
     <HeaderClient

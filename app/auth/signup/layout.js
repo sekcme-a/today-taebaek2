@@ -5,10 +5,10 @@ export default async function LoginLayout({ children }) {
   const supabase = await createServerSupabaseClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (session) {
+  if (user) {
     redirect("/");
   }
 
