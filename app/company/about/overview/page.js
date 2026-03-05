@@ -78,7 +78,7 @@ export default function CompanyOverview() {
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="text-center md:text-left">
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                "진실을 넘어 가치를 전달합니다"
+                {`"진실을 넘어 가치를 전달합니다"`}
               </h3>
               <p className="text-blue-100 text-lg font-light">
                 투데이태백은 지역사회의 건강한 공론장을 지향합니다.

@@ -64,9 +64,9 @@ export default function AboutIntro() {
             <div className="hidden lg:block">
               <div className="h-40 w-full bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl flex items-center justify-center text-white p-8">
                 <p className="text-lg font-medium italic text-center">
-                  "독자의 신뢰가
+                  {`  "독자의 신뢰가`}
                   <br />
-                  우리의 유일한 자산입니다."
+                  {` 우리의 유일한 자산입니다."`}
                 </p>
               </div>
             </div>
@@ -75,7 +75,7 @@ export default function AboutIntro() {
           {/* Main Message: 인사말 본문 */}
           <div className="lg:col-span-8 bg-white p-10 md:p-20 shadow-2xl shadow-slate-200/50 rounded-[40px] border border-slate-50 relative">
             <div className="absolute top-10 right-10 text-9xl font-serif text-slate-50 select-none">
-              "
+              {`"`}
             </div>
 
             <div className="relative">
@@ -94,8 +94,9 @@ export default function AboutIntro() {
                   중요해졌습니다. 가짜 뉴스가 범람하고 편향된 정보가 여론을
                   왜곡하는 시대에,
                   <strong> 투데이태백</strong>은 오직{" "}
-                  <span className="text-blue-600 font-medium">'팩트'</span>와{" "}
-                  <span className="text-blue-600 font-medium">'진실'</span>
+                  <span className="text-blue-600 font-medium">{`'팩트'`}</span>
+                  와{" "}
+                  <span className="text-blue-600 font-medium">{`'진실'`}</span>
                   이라는 언론 본연의 가치를 지키기 위해 탄생했습니다.
                 </p>
 
