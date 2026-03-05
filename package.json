@@ -33,6 +33,7 @@
     "hwp.js": "^0.0.3",
     "imapflow": "^1.0.199",
     "jszip": "^3.10.1",
+    "lucide-react": "^0.577.0",
     "mailparser": "^3.9.3",
     "next": "15.5.9",
     "node-imap": "^0.9.6",

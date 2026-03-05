@@ -38,6 +38,10 @@ export const MENU = [
     role: "super_admin",
   },
   {
+    text: "문의 관리",
+    link: "/inquiries",
+  },
+  {
     text: "이메일 로그",
     link: "/email/logs",
     role: "super_admin",

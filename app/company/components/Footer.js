@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
-  const SPAN_CLASS = " px-2 text-sm text-gray-400 my-1";
+  // 텍스트 색상을 더 짙은 회색(gray-500/600)으로 조정했습니다.
+  const SPAN_CLASS = " px-2 text-sm text-gray-500 my-1";
 
   const FOOTER_ONE = [
     "주소 - 강원특별자치 태백시 석공길28-14(장성동)",
@@ -32,14 +33,16 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="  md:mx-[4vw] lg:mx-[7vw] mx-[12px]">
-      <nav className="py-3 border-t-1 border-b border-gray-200">
+    <footer className="md:mx-[4vw] lg:mx-[7vw] mx-[12px] bg-white text-gray-800">
+      <nav className="py-3 border-t border-b border-gray-200">
         <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
           {FOOTER_NAV.map((item, index) => (
-            <li key={index} className="flex items-center gap-6 ">
+            <li key={index} className="flex items-center gap-6">
               <Link
                 href={item.href}
-                className={`text-[14px] hover:text-white font-medium transition-colors ${item.highlight ? "font-bold text-gray-200" : "text-gray-400"}`}
+                className={`text-[14px] hover:text-black font-medium transition-colors ${
+                  item.highlight ? "font-bold text-gray-900" : "text-gray-600"
+                }`}
               >
                 {item.name}
               </Link>
@@ -51,24 +54,22 @@ const Footer = () => {
         </ul>
       </nav>
 
-      <div className=" flex flex-col md:flex-row py-10 px-2 items-center">
-        {/* <div className="relative w-full md:w-72 aspect-[3/1] "> */}
+      <div className="flex flex-col md:flex-row py-10 px-2 items-center">
+        {/* 로고 이미지가 흰색 바탕용(검은색 글자 등)으로 교체되어야 합니다. */}
         <Image
-          src="/images/logo_white.png"
+          src="/images/logo.png"
           alt="footer 로고 이미지"
-          // fill
           width={150}
           height={35}
           className="object-contain md:mr-20 mt-10 md:mt-0"
         />
-        {/* </div> */}
         <div className="flex-1 mt-4 md:mt-0">
           <ul className="flex flex-wrap items-center justify-center md:justify-start">
             {FOOTER_ONE.map((item, index) => (
               <li key={index} className="flex flex-wrap items-center">
-                <p className="px-2 text-sm text-gray-400 my-1">{item}</p>
+                <p className="px-2 text-sm text-gray-500 my-1">{item}</p>
                 {FOOTER_ONE.length - 1 !== index && (
-                  <div className="h-3 w-[1px] bg-gray-600 mx-2 hidden md:block" />
+                  <div className="h-3 w-[1px] bg-gray-300 mx-2 hidden md:block" />
                 )}
               </li>
             ))}
@@ -76,17 +77,22 @@ const Footer = () => {
           <ul className="flex flex-wrap items-center justify-center md:justify-start">
             {FOOTER_TWO.map((item, index) => (
               <li key={index} className="flex flex-wrap items-center">
-                <p className="px-2 text-sm text-gray-400 my-1">{item}</p>
+                <p className="px-2 text-sm text-gray-500 my-1">{item}</p>
                 {FOOTER_TWO.length - 1 !== index && (
-                  <div className="h-3 w-[1px] bg-gray-600 mx-2 hidden md:block" />
+                  <div className="h-3 w-[1px] bg-gray-300 mx-2 hidden md:block" />
                 )}
               </li>
             ))}
           </ul>
-          <p className="text-sm text-gray-400 pl-2 mt-2 text-center md:text-start">{`투데이태백의 모든 콘텐트(기사)는 저작권법의 보호를 받은바, 무단 전재, 복사, 배포 등을 금합니다.`}</p>
-          <p className="text-sm text-gray-400 pl-2 text-center md:text-start">
-            Copyright by Today Taebaek Co., Ltd. All Rights Reserved
-          </p>
+          <div className="mt-4">
+            <p className="text-xs text-gray-400 pl-2 text-center md:text-start leading-relaxed">
+              투데이태백의 모든 콘텐트(기사)는 저작권법의 보호를 받은바, 무단
+              전재, 복사, 배포 등을 금합니다.
+            </p>
+            <p className="text-xs text-gray-400 pl-2 text-center md:text-start font-light">
+              Copyright by Today Taebaek Co., Ltd. All Rights Reserved
+            </p>
+          </div>
         </div>
       </div>
     </footer>
