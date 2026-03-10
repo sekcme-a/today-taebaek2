@@ -8,12 +8,14 @@ import BodyTwo from "./zz_components/BodyTwo/BodyTwo";
 import BodyThree from "./zz_components/BodyThree/BodyThree";
 import Footer from "@/components/Footer";
 import AdBanner from "./zz_components/AdBanner";
+import PopupOverlay from "./zz_components/PopupOverlay";
 
 export default function Home() {
   return (
     <>
       <Header hasH1 />
       <main className="pt-14 md:pt-20  md:mx-[4vw] lg:mx-[7vw] mx-[12px]">
+        <PopupOverlay />
         <DateToday />
         <Main />
 

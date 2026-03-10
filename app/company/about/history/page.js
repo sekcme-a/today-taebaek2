@@ -30,7 +30,7 @@ export default function AboutHistory() {
         </p>
       </div>
 
-      <div className="space-y-16">
+      {/* <div className="space-y-16">
         {histories.map((hist, idx) => (
           <div key={idx} className="flex flex-col md:flex-row gap-8">
             <div className="md:w-32 flex-shrink-0">
@@ -51,7 +51,7 @@ export default function AboutHistory() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function Header() {
       title: "회사소개",
       sub: [
         { name: "회사소개", path: "/company/about/intro" },
-        { name: "회사연혁", path: "/company/about/history" },
+        // { name: "회사연혁", path: "/company/about/history" },
         { name: "회사개요", path: "/company/about/overview" },
       ],
     },
