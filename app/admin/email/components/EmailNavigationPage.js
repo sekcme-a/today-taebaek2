@@ -307,9 +307,17 @@ export function EmailNavigationPage({ selectedEmails, onGoBack }) {
     try {
       const parsedData = JSON.parse(jsonInput);
       for (const article of parsedData) {
+        const reporters = ["김균식 기자", "심수연 기자"];
+        // 0부터 배열 길이 미만의 랜덤한 정수 생성
+        const randomIndex = Math.floor(Math.random() * reporters.length);
+
         const { data: inserted, error: dbErr } = await supabase
           .from("articles")
-          .insert({ title: article.title, content: article.content })
+          .insert({
+            title: article.title,
+            content: article.content,
+            author: reporters[randomIndex],
+          })
           .select()
           .single();
         if (dbErr) throw dbErr;
