@@ -55,6 +55,10 @@ export const MENU = [
     link: "/popups",
   },
   {
+    text: "유튜브 관리",
+    link: "/youtubes",
+  },
+  {
     text: "지면 PDF 관리",
     link: "/articles/pdf",
   },
